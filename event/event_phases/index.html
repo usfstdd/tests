@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        div{
+            display: inline-block;
+            padding: 10px;
+            border:solid 1px black;
+            background-color: #fff;
+            width: 50px;
+            
+
+        }
+        #div3{
+            width:100px;
+        }
+        /* div:hover{
+            border:solid 1px #faa;
+            background-color: #faa;
+        } */
+    </style>
+</head>
+<body>
+    <div id='div1'>1
+        <div id='div2'>2
+            <div id='div3'>3
+
+            </div>
+        </div>
+    </div>
+    <script>
+        let evtPhasestr = ["NONE: ", "CAPTURING_PHASE: ", "AT_TARGET: ", "BUBBLING_PHASE: "];
+        div = document.querySelectorAll('div');
+
+        div.forEach(element => {
+            element.addEventListener('mouseover',function(e){
+                e.stopPropagation();
+                     
+                let element = e.currentTarget
+                element.style.backgroundColor = '#faa';
+                element.style.border='solid red 1px';
+
+            })
+        });
+
+        div.forEach(element => {
+            element.addEventListener('mouseout',function(e){
+                // e.stopPropagation();
+                let element = e.currentTarget
+                element.style.backgroundColor = '#fff';
+                element.style.border='solid black 1px';
+
+            })
+        });
+
+        div.forEach(function(element){
+            element.addEventListener('click',function(event){
+                event.stopPropagation(); 
+                console.log(`Phase:${evtPhasestr[event.eventPhase]} event.target is:${event.target.id} - event.currentTarget: ${event.currentTarget.id}`)
+
+            })
+        })
+    </script>
+    
+</body>
+</html>
