@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    
+    <script>
+        const eventPhases = ['NONE', 'CAPTURING_PHASE', 'AT_TARGET', 'BUBBLING_PHASE']
+        const ul = document.createElement('ul')
+        document.body.append(ul)
+
+        let liCount = 10;
+        for (let i=0; i<liCount; i++){
+            let li = document.createElement('li');
+            li.innerText = i;
+            ul.append(li)
+        }
+
+
+        ul.addEventListener('click',function(event){
+            console.log(eventPhases[event.eventPhase]);
+            console.log(this)
+            event.target.style.visibility = 'hidden';
+        })
+    </script>
+    
+</body>
+</html>
