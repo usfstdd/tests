@@ -13,41 +13,104 @@
     <div id='cat_display'>
     </div>
     <script>
-        const ul = document.querySelector('#cat_list');
-        const catImageDisplay = document.querySelector('#cat_display')
-
         const catsURL = ['cat_image/cat1.jpg', 'cat_image/cat2.jpg', 'cat_image/cat3.jpg', 'cat_image/cat4.jpg',
             'cat_image/cat5.jpg',
             'cat_image/cat6.jpg', 'cat_image/cat7.jpg', 'cat_image/cat8.jpg',
         ]
+        let data = {
+            current_image: 0,
+            catsInfo: catsURL.map(function (item) {
+                return {
+                    URL: item,
+                    name: item.replace('cat_image/', '').replace('.jpg', ''),
+                    count: 0
 
-
-        catsURL.forEach(function (item) {
-            li = document.createElement('li');
-            li.innerText = item;
-            ul.append(li)
-
-        })
-        for (let i = 0; i < document.querySelectorAll('li').length; i++) {
-            document.querySelectorAll('li')[i].addEventListener('click', (function (count) {
-                return function (event) {
-                    catImageDisplay.innerHTML = '';
-                    const img = document.createElement('img');
-                    const clickedCount = document.createElement('div');
-
-                    clickedCount.innerText = count;
-
-                    img.src = catsURL[i];
-                    catImageDisplay.append(clickedCount);
-                    catImageDisplay.append(img);
-
-                    img.addEventListener('click', function (event) {
-                        count += 1;
-                        clickedCount.innerText = count;
-                    })
                 }
-            })(0))
+            })
+
+        };
+
+        let octapus = {
+            getCatsInfo: function () {
+                return data.catsInfo;
+            },
+
+            addClickCount: function (cat_id) {
+                console.log(cat_id)
+                data.catsInfo[cat_id].count += 1;
+
+            },
+            addClickCountToDisplayedCat: function () {
+                this.addClickCount(data.current_image);
+            },
+            getCatInfo: function (cat_id) {
+                return data.catsInfo[cat_id]
+            },
+            getClickCount: function () {
+                return data.catsInfo[data.current_image].count
+            },
+            setCurrentDisplayedCat: function (cat_id) {
+                data.current_image = cat_id;
+            },
+
+            getCurrentDisplayCat: function () {
+                return this.getCatInfo(data.current_image);
+            }
         }
+
+        let view = {
+            init: function () {
+                const ul = document.querySelector('#cat_list');
+                this.catImageDisplay = document.querySelector('#cat_display');
+
+                octapus.getCatsInfo().forEach(function (item) {
+                    li = document.createElement('li');
+                    li.innerText = item.name;
+                    ul.append(li)
+
+                });
+
+
+                let renderImage = this.renderImage.bind(this);
+
+                document.querySelectorAll('li').forEach(function (li, index) {
+                    li.addEventListener('click', (function (index) {
+                        return function (event) {
+                            console.log(event.target)
+                            octapus.setCurrentDisplayedCat(index)
+                            renderImage();
+
+                        }
+                    })(index))
+                });
+
+                this.catImageDisplay.addEventListener('click', function (event) {
+
+                    if (event.target.tagName === 'IMG') {
+                        octapus.addClickCountToDisplayedCat();
+                        renderImage();
+                    }
+                })
+            },
+            renderImage: function () {
+                console.log('remderImage run!')
+
+                this.catImageDisplay.innerHTML = '';
+                const img = document.createElement('img');
+                const clickedCount = document.createElement('div');
+
+                clickedCount.innerText = octapus.getClickCount();
+                img.src = octapus.getCurrentDisplayCat().URL;
+                console.log(octapus.getClickCount())
+
+                this.catImageDisplay.append(img)
+                this.catImageDisplay.append(clickedCount)
+
+
+            }
+
+        }
+        view.init();
     </script>
 </body>
 
