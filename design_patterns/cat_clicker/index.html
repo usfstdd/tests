@@ -6,11 +6,40 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <link rel="stylesheet" href='main.css'>
+
 </head>
 
 <body>
     <ul id='cat_list'></ul>
     <div id='cat_display'>
+
+    </div>
+    <div id='admin_div'>
+        <button id='admin_btn'>admin</button>
+        <section id='administration_section'>
+            <form>
+                <div>
+                    <label for='current_cat_name'>cat name</label>
+                    <input id='current_cat_name'>
+
+                </div>
+
+                <div>
+                    <label for='current_cat_URL'>cat URL</label>
+                    <input id='current_cat_URL'>
+
+                </div>
+                <div>
+                    <label for='current_cat_click_count'>click count</label>
+                    <input id='current_cat_click_count'>
+
+                </div>
+                <button id='update_btn'>update!</button>
+                <button id='cancel_btn'>cancel.</button>
+            </form>
+        </section>
+
     </div>
     <script>
         const catsURL = ['cat_image/cat1.jpg', 'cat_image/cat2.jpg', 'cat_image/cat3.jpg', 'cat_image/cat4.jpg',
@@ -18,9 +47,11 @@
             'cat_image/cat6.jpg', 'cat_image/cat7.jpg', 'cat_image/cat8.jpg',
         ]
         let data = {
-            current_image: 0,
+
+            currentCat: 0,
             catsInfo: catsURL.map(function (item) {
                 return {
+                    adminMode: false,
                     URL: item,
                     name: item.replace('cat_image/', '').replace('.jpg', ''),
                     count: 0
@@ -41,26 +72,46 @@
 
             },
             addClickCountToDisplayedCat: function () {
-                this.addClickCount(data.current_image);
+                this.addClickCount(data.currentCat);
             },
-            getCatInfo: function (cat_id) {
-                return data.catsInfo[cat_id]
-            },
-            getClickCount: function () {
-                return data.catsInfo[data.current_image].count
+            getCurrentCat: function () {
+                return data.catsInfo[data.currentCat];
             },
             setCurrentDisplayedCat: function (cat_id) {
-                data.current_image = cat_id;
+                data.currentCat = cat_id;
             },
 
-            getCurrentDisplayCat: function () {
-                return this.getCatInfo(data.current_image);
+            adminMode: function (value) {
+                data.catsInfo[data.currentCat].adminMode = value;
+                view.admin_section.hidden = value;
+                (value === false) && view.renderAdminArea();
+            },
+            update: function (arr) {
+                let currentCat = data.catsInfo[data.currentCat];
+                currentCat.URL = arr[1];
+                currentCat.name = arr[0];
+                currentCat.count = parseInt(arr[2]);
+                view.renderImage();
+
             }
         }
 
         let view = {
             init: function () {
+
                 const ul = document.querySelector('#cat_list');
+                const adminBTN = document.querySelector('#admin_btn');
+                this.admin_section = document.querySelector('#administration_section');
+                this.currentCatFormElements = {
+
+                    name: document.querySelector('#current_cat_name'),
+                    url: document.querySelector('#current_cat_URL'),
+                    count: document.querySelector('#current_cat_click_count'),
+                    cancel: document.querySelector('#cancel_btn'),
+                    update: document.querySelector('#update_btn'),
+                }
+                this.admin_section.hidden = true;
+
                 this.catImageDisplay = document.querySelector('#cat_display');
 
                 octapus.getCatsInfo().forEach(function (item) {
@@ -72,7 +123,7 @@
 
 
                 let renderImage = this.renderImage.bind(this);
-
+                let renderAdminArea = this.renderAdminArea.bind(this);
                 document.querySelectorAll('li').forEach(function (li, index) {
                     li.addEventListener('click', (function (index) {
                         return function (event) {
@@ -89,24 +140,53 @@
                     if (event.target.tagName === 'IMG') {
                         octapus.addClickCountToDisplayedCat();
                         renderImage();
+                        renderAdminArea();
                     }
+                });
+                adminBTN.addEventListener('click', function (event) {
+                    octapus.adminMode(false);
+                });
+
+                this.currentCatFormElements.cancel.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    octapus.adminMode(true)
+                });
+
+                this.admin_section.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    let v = [];
+                    this.querySelectorAll('label+input').forEach(function (item) {
+                        v.push(item.value)
+                    });
+                    console.log(v)
+                    octapus.update(v)
+
                 })
+
             },
             renderImage: function () {
-                console.log('remderImage run!')
-
                 this.catImageDisplay.innerHTML = '';
                 const img = document.createElement('img');
                 const clickedCount = document.createElement('div');
+                const catName = document.createElement('div');
 
-                clickedCount.innerText = octapus.getClickCount();
-                img.src = octapus.getCurrentDisplayCat().URL;
-                console.log(octapus.getClickCount())
+                clickedCount.innerText = octapus.getCurrentCat().count;
+                catName.innerText = octapus.getCurrentCat().name;
+                img.src = octapus.getCurrentCat().URL;
 
+                this.catImageDisplay.append(catName)
                 this.catImageDisplay.append(img)
                 this.catImageDisplay.append(clickedCount)
 
 
+            },
+
+            renderAdminArea: function () {
+                let currentCat = octapus.getCurrentCat();
+                this.currentCatFormElements.name.value = currentCat.name;
+                this.currentCatFormElements.url.value = currentCat.URL;
+                console.log(this.currentCatFormElements.count)
+                this.currentCatFormElements.count.value = currentCat.count;
             }
 
         }
