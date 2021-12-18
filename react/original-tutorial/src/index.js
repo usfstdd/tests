@@ -5,12 +5,14 @@ import './index.css';
 class Square extends React.Component {
     render() {
         return (
-            <button className="square" onClick={function (event) {
+            <button className="square" onClick={(event) => {
                 console.log(event);
                 console.log(this.props.value)
-            }.bind(this)}>
+            }
+
+            }>
                 {this.props.value}
-            </button>
+            </button >
         );
     }
 }
